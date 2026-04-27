@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#081526">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Royal Sharm">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Royal Sharm Travel Management System">
+<link rel="apple-touch-icon" id="ati">
+<link rel="manifest" id="mfst">
+<title>Royal Sharm Travel</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+:root{
+  --bg:#081526;--s1:#0D1E36;--s2:#122038;--s3:#1A3050;
+  --gold:#D4AF37;--gold2:#F0C84A;--gold3:rgba(212,175,55,0.12);
+  --green:#22C55E;--red:#F87171;--ora:#FB923C;--yel:#FBBF24;
+  --blue:#60A5FA;--pur:#A78BFA;--teal:#2DD4BF;
+  --txt:#F1F5F9;--muted:#94A3B8;--faint:#4A5568;
+  --b1:rgba(212,175,55,0.15);--b2:rgba(212,175,55,0.35);
+  --r: 12px;--rs:8px;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;font-size:14px;line-height:1.5}
+#app{max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden}
+
+/* HEADER */
+.hdr{flex-shrink:0;background:var(--bg);border-bottom:1px solid var(--b2);padding:12px 16px 10px;padding-top:max(12px,env(safe-area-inset-top));display:flex;justify-content:space-between;align-items:center}
+.hdr-l{display:flex;align-items:center;gap:10px}
+.hdr-ico{width:36px;height:36px;background:var(--gold3);border:1px solid var(--b2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.hdr-brand{color:var(--gold);font-weight:800;font-size:16px;letter-spacing:.5px}
+.hdr-sub{color:var(--faint);font-size:10px}
+.hdr-r{display:flex;align-items:center;gap:8px}
+.badge{background:var(--red);color:#fff;border-radius:12px;padding:2px 8px;font-size:11px;font-weight:700}
+
+/* MONTH NAV */
+.mnav{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--s1);border-bottom:1px solid var(--b1)}
+.mnav-btn{background:var(--s2);border:1px solid var(--b1);color:var(--gold);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;font-weight:700;transition:all .15s}
+.mnav-btn:active{transform:scale(.92)}
+.mnav-label{color:var(--txt);font-weight:700;font-size:15px;text-align:center;flex:1}
+.mnav-sub{color:var(--muted);font-size:11px;text-align:center}
+
+/* CONTENT */
+.pages{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;padding:14px 14px 90px;display:none;-webkit-overflow-scrolling:touch}
+.page.active{display:block}
+
+/* BOTTOM NAV */
+.bnav{flex-shrink:0;background:#060E1C;border-top:1px solid var(--b2);display:flex;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+.nb{flex:1;padding:10px 0 6px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--faint);font-size:9px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;border-top:2px solid transparent;transition:all .2s;position:relative}
+.nb.on{color:var(--gold);border-top-color:var(--gold)}
+.ni{font-size:20px;line-height:1}
+.nb-dot{position:absolute;top:8px;right:calc(50% - 14px);background:var(--red);width:7px;height:7px;border-radius:50%;border:1.5px solid #060E1C}
+
+/* FAB */
+.fab{position:fixed;bottom:max(70px,calc(60px + env(safe-area-inset-bottom)));right:calc(50% - 215px + 16px);width:52px;height:52px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(212,175,55,0.4);transition:all .2s;z-index:90;border:none;color:#081526}
+.fab:active{transform:scale(.93)}
+@media(max-width:430px){.fab{right:16px}}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:13px 14px;margin-bottom:9px}
+.card-gold{border-color:var(--b2)}
+
+/* STAT GRID */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.sc{background:rgba(255,255,255,0.035);border:1px solid var(--b1);border-radius:var(--r);padding:12px 13px}
+.sc-ico{font-size:18px;margin-bottom:4px}
+.sc-lbl{color:var(--muted);font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px}
+.sc-val{font-size:20px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.sc-sub{color:var(--faint);font-size:10.5px;margin-top:3px}
+
+/* BAR CHART */
+.chart-wrap{background:rgba(255,255,255,0.025);border-radius:var(--r);padding:12px 10px 8px;margin-bottom:12px}
+.chart-title{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;padding:0 4px}
+.chart-bars{display:flex;align-items:flex-end;gap:5px;height:70px}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.chart-bar{width:100%;border-radius:3px 3px 0 0;min-height:3px;transition:height .5s}
+.chart-blbl{font-size:8.5px;color:var(--faint);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+.chart-bval{font-size:9px;color:var(--gold);font-weight:600}
+
+/* TREASURY HERO */
+.t-hero{background:linear-gradient(145deg,#0D2040,#162E52);border:1px solid var(--b2);border-radius:16px;padding:20px;text-align:center;margin-bottom:12px}
+.t-bal{font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;margin:6px 0}
+.t-row{display:flex;justify-content:center;gap:24px;margin-top:12px}
+
+/* BOOKING CARDS */
+.bcard{border:1px solid;border-radius:var(--r);padding:12px 13px;margin-bottom:8px;transition:all .2s;cursor:pointer}
+.bc-r{background:rgba(248,113,113,0.07);border-color:rgba(248,113,113,0.38)}
+.bc-o{background:rgba(251,146,60,0.07);border-color:rgba(251,146,60,0.35)}
+.bc-y{background:rgba(251,191,36,0.05);border-color:rgba(251,191,36,0.28)}
+.bc-g{background:rgba(255,255,255,0.02);border-color:var(--b1)}
+.bc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.bc-trip{color:var(--gold);font-weight:700;font-size:14.5px}
+.bc-date{color:var(--blue);font-size:12px;white-space:nowrap;margin-left:6px}
+.bc-info{color:var(--muted);font-size:12px;line-height:1.7;margin-bottom:6px}
+.bc-foot{display:flex;justify-content:space-between;align-items:center}
+.bc-detail{background:var(--s2);border-top:1px solid var(--b1);margin:10px -13px -12px;padding:12px 13px;border-radius:0 0 var(--r) var(--r);display:none}
+.bc-detail.open{display:block}
+.bc-drow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--b1);font-size:12.5px}
+
+/* FILTER CHIPS */
+.chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;padding-bottom:2px;-ms-overflow-style:none;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{padding:5px 12px;border-radius:20px;border:1px solid;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;transition:all .15s}
+.chip.on{background:var(--gold);color:#081526;border-color:var(--gold)}
+.chip:not(.on){background:rgba(255,255,255,0.05);color:var(--muted);border-color:var(--b1)}
+
+/* SEARCH */
+.swrap{position:relative;margin-bottom:10px}
+.si{width:100%;background:var(--s1);border:1px solid var(--b1);color:var(--txt);border-radius:var(--rs);padding:10px 12px 10px 36px;font-size:14px;outline:none;transition:border-color .2s}
+.si:focus{border-color:var(--gold)}
+.sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--muted);pointer-events:none}
+.ac-drop{position:absolute;top:100%;left:0;right:0;background:var(--s2);border:1px solid var(--b2);border-top:none;border-radius:0 0 8px 8px;z-index:300;max-height:160px;overflow-y:auto}
+.ac-item{padding:10px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--b1);transition:background .1s}
+.ac-item:active{background:var(--gold3)}
+.ac-item:last-child{border-bottom:none}
+
+/* FORMS */
+.fsec{background:rgba(255,255,255,0.025);border-radius:var(--r);padding:13px;margin-bottom:10px;border-left:3px solid transparent}
+.fl{color:var(--muted);font-size:11.5px;display:block;margin-bottom:3px}
+.fi,.fsel,.fta{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--b1);color:var(--txt);border-radius:var(--rs);padding:10px 11px;font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.fi:focus,.fsel:focus{border-color:var(--gold)}
+.fsel{background-color:#0C1B30}
+.fta{resize:none}
+.fro{background:rgba(255,255,255,0.03);border:1px solid var(--b1);border-radius:var(--rs);padding:10px 11px;font-size:14px;font-weight:700}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fg{margin-bottom:9px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:10px 14px;border:none;border-radius:var(--rs);cursor:pointer;font-size:13.5px;font-weight:600;transition:all .15s;user-select:none;-webkit-user-select:none}
+.btn:active{transform:scale(.96)}
+.bg{background:var(--gold);color:#081526}
+.bo{background:rgba(255,255,255,0.07);color:var(--txt);border:1px solid var(--b1)}
+.bgr{background:rgba(34,197,94,0.15);color:var(--green)}
+.brd{background:rgba(248,113,113,0.15);color:var(--red)}
+.bbl{background:rgba(96,165,250,0.15);color:var(--blue)}
+.bwa{background:#25D366;color:#fff}
+.bor{background:rgba(251,146,60,0.15);color:var(--ora)}
+.bpu{background:rgba(167,139,250,0.15);color:var(--pur)}
+.bfw{width:100%}
+.bsm{padding:6px 9px;font-size:12px;border-radius:6px}
+.bg2{background:rgba(212,175,55,0.15);color:var(--gold);border:1px solid var(--b2)}
+
+/* TREASURY TX */
+.ttx{border:1px solid;border-radius:var(--rs);padding:10px 12px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center}
+.ttx-i{border-color:rgba(34,197,94,0.28);background:rgba(34,197,94,0.05)}
+.ttx-e{border-color:rgba(248,113,113,0.28);background:rgba(248,113,113,0.05)}
+
+/* ALERTS */
+.apill{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--rs);border-left:3px solid;margin-bottom:6px;font-size:12.5px}
+.ar{background:rgba(248,113,113,0.08);border-color:var(--red)}
+.ao{background:rgba(251,146,60,0.08);border-color:var(--ora)}
+.ay{background:rgba(251,191,36,0.06);border-color:var(--yel)}
+.ag{background:rgba(34,197,94,0.06);border-color:var(--green)}
+
+/* REPORT TABS */
+.rtabs{display:flex;gap:5px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px;-ms-overflow-style:none;scrollbar-width:none}
+.rtabs::-webkit-scrollbar{display:none}
+.rtab{padding:7px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;white-space:nowrap;transition:all .15s}
+.rtab.on{background:var(--gold);color:#081526}
+.rtab:not(.on){background:rgba(255,255,255,0.06);color:var(--muted)}
+
+/* MODAL */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:500;overflow-y:auto}
+.moverlay.show{display:block}
+.minner{background:var(--bg);min-height:100%;padding:20px;padding-top:max(20px,env(safe-area-inset-top));max-width:430px;margin:0 auto}
+.mhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.mttl{color:var(--gold);font-size:17px;font-weight:700}
+.mcls{background:rgba(255,255,255,0.07);border:none;color:var(--muted);font-size:20px;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+/* BOTTOM SHEET */
+.bsheet{display:none;position:fixed;inset:0;z-index:500}
+.bsheet.show{display:flex;flex-direction:column;justify-content:flex-end}
+.bsheet-bg{position:absolute;inset:0;background:rgba(0,0,0,0.7)}
+.bsheet-body{position:relative;background:var(--s1);border-radius:20px 20px 0 0;padding:20px 16px;padding-bottom:max(24px,env(safe-area-inset-bottom));max-width:430px;width:100%;margin:0 auto;max-height:90vh;overflow-y:auto}
+.bsheet-handle{width:36px;height:4px;background:var(--b2);border-radius:2px;margin:0 auto 16px}
+
+/* WA */
+.wa-msg{background:#075e54;color:#fff;border-radius:14px;padding:14px;font-size:14px;white-space:pre-wrap;font-family:'Courier New',monospace;line-height:1.9;margin-bottom:12px}
+
+/* NOTIFICATIONS */
+.notif{position:fixed;bottom:calc(72px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(20px);padding:11px 22px;border-radius:24px;font-size:13.5px;font-weight:600;color:#fff;z-index:9999;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none;max-width:90%}
+.notif.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.ns{background:var(--green)}.nw{background:var(--ora)}.ne{background:var(--red)}
+
+/* PROGRESS */
+.pbar{background:rgba(255,255,255,0.07);border-radius:3px;height:5px;overflow:hidden;margin-top:5px}
+.pfill{height:100%;border-radius:3px;transition:width .6s}
+
+/* SECTION TITLE */
+.stl{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}
+
+/* UPCOMING */
+.upc{background:rgba(255,255,255,0.03);border:1px solid var(--b1);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+
+/* INSTALL BANNER */
+.install-banner{background:linear-gradient(135deg,var(--s3),#1A3A60);border:1px solid var(--b2);border-radius:var(--r);padding:14px;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.ib-ico{font-size:28px;flex-shrink:0}
+.ib-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;margin-left:auto;padding:4px}
+
+/* SETTINGS */
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--b1)}
+.setting-row:last-child{border-bottom:none}
+.sr-lbl{font-size:14px;font-weight:500}
+.sr-sub{color:var(--muted);font-size:11px;margin-top:1px}
+.toggle{width:44px;height:26px;background:var(--faint);border-radius:13px;position:relative;cursor:pointer;border:none;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--gold)}
+.toggle::after{content:'';position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .2s}
+.toggle.on::after{transform:translateX(18px)}
+
+/* COLORS */
+.cg{color:var(--gold)}.cgr{color:var(--green)}.cr{color:var(--red)}.co{color:var(--ora)}.cb{color:var(--blue)}.cp{color:var(--pur)}.cm{color:var(--muted)}.ct{color:var(--teal)}
+
+/* EMPTY */
+.empty{text-align:center;color:var(--faint);padding:36px 20px;font-size:13px;line-height:2.3}
+
+/* LOADING */
+.loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999}
+.spin{width:36px;height:36px;border:3px solid var(--b2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hidden{display:none!important}
+
+/* MISC */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+input[type=month]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4)}
+select option{background:#0C1B30}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading" id="loading">
+  <div style="font-size:40px;margin-bottom:16px">👑</div>
+  <div class="spin"></div>
+  <div class="cg" style="font-weight:700;font-size:16px;letter-spacing:1px">ROYAL SHARM</div>
+</div>
+
+<!-- App -->
+<div id="app" class="hidden">
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="hdr-ico">👑</div>
+      <div>
+        <div class="hdr-brand" id="hdr-brand">ROYAL SHARM</div>
+        <div class="hdr-sub">Travel Management System</div>
+      </div>
+    </div>
+    <div class="hdr-r">
+      <div id="hdr-badge"></div>
+      <button class="bo btn bsm" onclick="openMore()" style="padding:7px 10px;font-size:13px">⋯</button>
+    </div>
+  </div>
+
+  <!-- Month Navigation -->
+  <div class="mnav" id="mnav">
+    <button class="mnav-btn" onclick="prevMo()">‹</button>
+    <div>
+      <div class="mnav-label" id="mnav-lbl">April 2026</div>
+      <div class="mnav-sub" id="mnav-cnt">Loading...</div>
+    </div>
+    <button class="mnav-btn" onclick="nextMo()">›</button>
+  </div>
+
+  <!-- Pages -->
+  <div class="pages">
+    <div class="page active" id="p-dash"></div>
+    <div class="page" id="p-book"></div>
+    <div class="page" id="p-tres"></div>
+    <div class="page" id="p-rep"></div>
+    <div class="page" id="p-set"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bnav">
+    <button class="nb on" onclick="sw('dash')" id="n-dash"><span class="ni">🏠</span>Home</button>
+    <button class="nb" onclick="sw('book')" id="n-book"><span class="ni">📋</span>Bookings</button>
+    <button class="nb" onclick="sw('tres')" id="n-tres"><span class="ni">💰</span>Treasury</button>
+    <button class="nb" onclick="sw('rep')"  id="n-rep"><span class="ni">📈</span>Reports</button>
+    <button class="nb" onclick="sw('set')"  id="n-set"><span class="ni">⚙️</span>Settings</button>
+  </nav>
+
+  <!-- FAB -->
+  <button class="fab" id="fab" onclick="openBForm(null)" title="Add booking">＋</button>
+</div>
+
+<!-- Notif -->
+<div class="notif" id="notif"></div>
+
+<!-- Modal: Booking Form -->
+<div class="moverlay" id="m-book">
+  <div class="minner">
+    <div class="mhdr">
+      <div class="mttl" id="m-book-ttl">New Booking</div>
+      <button class="mcls" onclick="closeM('m-book')">✕</button>
+    </div>
+    <div id="m-book-body"></div>
+  </div>
+</div>
+
+<!-- Modal: WhatsApp -->
+<div class="moverlay" id="m-wa">
+  <div class="minner">
+    <div class="mhdr">
+      <div class="mttl">📱 WhatsApp Message</div>
+      <button class="mcls" onclick="closeM('m-wa')">✕</button>
+    </div>
+    <div class="wa-msg" id="wa-msg"></div>
+    <div style="display:flex;gap:9px;margin-bottom:10px">
+      <button class="btn bwa bfw" onclick="copyWA()">📋 Copy</button>
+      <button class="btn bgr bfw" onclick="openWA()">💬 Open WhatsApp</button>
+    </div>
+    <button class="btn bo bfw" onclick="closeM('m-wa')">Close</button>
+  </div>
+</div>
+
+<!-- Modal: Treasury -->
+<div class="moverlay" id="m-tres">
+  <div class="minner">
+    <div class="mhdr">
+      <div class="mttl">💰 Add Transaction</div>
+      <button class="mcls" onclick="closeM('m-tres')">✕</button>
+    </div>
+    <div id="m-tres-body"></div>
+  </div>
+</div>
+
+<!-- Bottom Sheet: More Menu -->
+<div class="bsheet" id="bs-more">
+  <div class="bsheet-bg" onclick="closeBs('bs-more')"></div>
+  <div class="bsheet-body" style="max-width:430px;margin:0 auto">
+    <div class="bsheet-handle"></div>
+    <div style="font-weight:700;font-size:16px;margin-bottom:14px;padding-left:2px">More Options</div>
+    <div id="bs-more-body"></div>
+  </div>
+</div>
+
+<!-- Bottom Sheet: Install Instructions -->
+<div class="bsheet" id="bs-install">
+  <div class="bsheet-bg" onclick="closeBs('bs-install')"></div>
+  <div class="bsheet-body">
+    <div class="bsheet-handle"></div>
+    <div style="font-weight:700;font-size:16px;margin-bottom:4px">📱 Install as Mobile App</div>
+    <div class="cm" style="font-size:12.5px;margin-bottom:16px">بدون App Store — بيشتغل أوفلاين</div>
+    <div style="display:flex;flex-direction:column;gap:10px" id="install-steps"></div>
+    <button class="btn bo bfw" style="margin-top:16px" onclick="closeBs('bs-install')">Got it</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG & CONSTANTS
+// ============================================================
+const KEY = 'rs_v2';
+const CURR = ['USD','EUR','GBP','EGP'];
+const SYM  = {USD:'$',EUR:'€',GBP:'£',EGP:'E£'};
+const DAYS  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MON   = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+let D = {bookings:[], treasury:[], cfg:{companyName:'Royal Sharm Travel',minBalance:10000,currency:'USD',salesTeam:'',showInstall:true}};
+let curMo_  = curMonthStr();
+let curTab  = 'dash';
+let bFilter = 'all';
+let bSearch = '';
+let curRep  = 'payments';
+let expandedCard = null;
+
+// ============================================================
+// DATA
+// ============================================================
+function load(){
+  try{const s=localStorage.getItem(KEY);if(s){const p=JSON.parse(s);D={...D,...p,cfg:{...D.cfg,...(p.cfg||{})}}}}catch(e){}
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(D))}
+
+function curMonthStr(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+
+// ============================================================
+// UNIQUE VALUES (for autocomplete)
+// ============================================================
+function uniq(field){return[...new Set(D.bookings.map(b=>b[field]).filter(Boolean))].sort()}
+
+// ============================================================
+// UTILS
+// ============================================================
+function fd(d){if(!d)return'';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'.')}
+function fmtMo(mo){if(!mo)return'';const[y,m]=mo.split('-');return`${MON[+m-1]} ${y}`}
+function dayName(d){if(!d)return'';return DAYS[new Date(d+'T00:00:00').getDay()]}
+function gid(){return Date.now()+Math.floor(Math.random()*9999)}
+function gv(id){const e=document.getElementById(id);return e?e.value.trim():''}
+function moBooks(m){return D.bookings.filter(b=>b.date&&b.date.startsWith(m))}
+function balEGP(){return D.treasury.reduce((s,t)=>t.type==='i'?s+(+t.amt||0):s-(+t.amt||0),0)}
+
+function prevMo(){
+  const[y,m]=curMo_.split('-').map(Number);
+  const d=new Date(y,m-2,1);
+  curMo_=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  updateMnav();renderTab(curTab);
+}
+function nextMo(){
+  const[y,m]=curMo_.split('-').map(Number);
+  const d=new Date(y,m,1);
+  curMo_=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  updateMnav();renderTab(curTab);
+}
+function updateMnav(){
+  const mb=moBooks(curMo_);
+  document.getElementById('mnav-lbl').textContent=fmtMo(curMo_);
+  document.getElementById('mnav-cnt').textContent=`${mb.length} bookings`;
+  // Hide month nav on pages that don't need it
+  const hide=['set'];
+  document.getElementById('mnav').style.display=hide.includes(curTab)?'none':'flex';
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+function notif(msg,t='s'){
+  const el=document.getElementById('notif');
+  el.textContent=msg;el.className=`notif n${t} show`;
+  setTimeout(()=>el.className='notif',3500);
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function sw(tab){
+  ['dash','book','tres','rep','set'].forEach(t=>{
+    document.getElementById('p-'+t).classList.toggle('active',t===tab);
+    document.getElementById('n-'+t).classList.toggle('on',t===tab);
+  });
+  // FAB only on bookings & dashboard
+  document.getElementById('fab').style.display=['dash','book'].includes(tab)?'flex':'none';
+  curTab=tab;
+  updateMnav();
+  renderTab(tab);
+}
+function renderTab(t){
+  if(t==='dash')rDash();
+  if(t==='book')rBook();
+  if(t==='tres')rTres();
+  if(t==='rep')rRep();
+  if(t==='set')rSet();
+}
+function closeM(id){document.getElementById(id).classList.remove('show')}
+function closeBs(id){document.getElementById(id).classList.remove('show')}
+
+// ============================================================
+// AUTOCOMPLETE
+// ============================================================
+function makeAC(inputId,options){
+  const inp=document.getElementById(inputId);
+  if(!inp)return;
+  let drop=null;
+  function removeDrop(){if(drop){drop.remove();drop=null;}}
+  function showDrop(){
+    removeDrop();
+    const q=inp.value.toLowerCase();
+    const filtered=options.filter(o=>o&&o.toLowerCase().includes(q)&&o!==inp.value).slice(0,7);
+    if(!filtered.length)return;
+    drop=document.createElement('div');drop.className='ac-drop';
+    filtered.forEach(opt=>{
+      const it=document.createElement('div');it.className='ac-item';it.textContent=opt;
+      it.addEventListener('touchstart',e=>{e.preventDefault();inp.value=opt;removeDrop();},{passive:false});
+      it.addEventListener('click',()=>{inp.value=opt;removeDrop();});
+      drop.appendChild(it);
+    });
+    inp.parentNode.style.position='relative';
+    inp.parentNode.appendChild(drop);
+  }
+  inp.addEventListener('input',showDrop);
+  inp.addEventListener('focus',showDrop);
+  document.addEventListener('touchstart',e=>{if(!inp.parentNode.contains(e.target))removeDrop();},{passive:true});
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function rDash(){
+  const mb=moBooks(curMo_);
+  const bal=balEGP();
+  const now=new Date();now.setHours(0,0,0,0);
+  const lim=new Date(now);lim.setDate(lim.getDate()+3);
+  const upcoming=D.bookings.filter(b=>{
+    if(!b.date)return false;
+    const d=new Date(b.date+'T00:00:00');return d>=now&&d<=lim;
+  }).sort((a,b)=>new Date(a.date)-new Date(b.date));
+
+  const noSup=mb.filter(b=>!b.sup);
+  const noPrice=mb.filter(b=>b.sup&&(!b.price||+b.price===0));
+  const hasRest=mb.filter(b=>b.sup&&b.price&&+b.rest>0);
+  const alertN=noSup.length+noPrice.length+hasRest.length;
+
+  document.getElementById('hdr-badge').innerHTML=alertN>0?`<div class="badge">⚠️ ${alertN}</div>`:'';
+
+  const totPax=mb.reduce((s,b)=>s+(+b.adults||0)+(+b.ch||0),0);
+  const revUSD=mb.filter(b=>b.cur===D.cfg.currency).reduce((s,b)=>s+(+b.price||0),0);
+  const restUSD=mb.filter(b=>b.cur===D.cfg.currency).reduce((s,b)=>s+(+b.rest||0),0);
+  const prfUSD=mb.filter(b=>b.cur===D.cfg.currency).reduce((s,b)=>s+(+b.profit||0),0);
+  const s=SYM[D.cfg.currency]||'$';
+
+  // Monthly chart — last 6 months
+  const chartData=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date(new Date(curMo_+'-01').setMonth(new Date(curMo_+'-01').getMonth()-i));
+    const mo=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const c=moBooks(mo).length;
+    chartData.push({mo,label:d.toLocaleDateString('en',{month:'short'}),c});
+  }
+  const maxC=Math.max(...chartData.map(x=>x.c),1);
+
+  const showInstall=D.cfg.showInstall&&!window.matchMedia('(display-mode: standalone)').matches;
+
+  document.getElementById('p-dash').innerHTML=`
+    ${showInstall?`<div class="install-banner">
+      <div class="ib-ico">📱</div>
+      <div>
+        <div style="font-weight:700;font-size:13.5px">Install as App</div>
+        <div class="cm" style="font-size:11.5px">Save to your phone's home screen</div>
+      </div>
+      <div style="display:flex;gap:6px;margin-left:auto">
+        <button class="btn bsm bg2" onclick="closeBs('bs-install');openInstall()">How?</button>
+        <button class="ib-close" onclick="D.cfg.showInstall=false;save();rDash()">✕</button>
+      </div>
+    </div>`:''}
+
+    <div class="sgrid">
+      <div class="sc"><div class="sc-ico">📋</div><div class="sc-lbl">Bookings</div><div class="sc-val cg">${mb.length}</div><div class="sc-sub">${totPax} total pax</div></div>
+      <div class="sc"><div class="sc-ico">💵</div><div class="sc-lbl">Revenue (${D.cfg.currency})</div><div class="sc-val cgr">${s}${revUSD.toFixed(0)}</div><div class="sc-sub">Profit: ${s}${prfUSD.toFixed(0)}</div></div>
+      <div class="sc"><div class="sc-ico">⏳</div><div class="sc-lbl">Pending Rest</div><div class="sc-val co">${s}${restUSD.toFixed(0)}</div><div class="sc-sub">${hasRest.length} bookings</div></div>
+      <div class="sc"><div class="sc-ico">🏦</div><div class="sc-lbl">Treasury (EGP)</div><div class="sc-val ${bal<+D.cfg.minBalance?'cr':'cgr'}">E£${Math.abs(bal)<1e6?Math.round(bal).toLocaleString():(bal/1000).toFixed(0)+'k'}</div><div class="sc-sub">${bal<+D.cfg.minBalance?'⚠️ Low':'OK'}</div></div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-title">📊 Monthly Bookings — Last 6 Months</div>
+      <div class="chart-bars">
+        ${chartData.map(x=>`
+          <div class="chart-col">
+            ${x.c>0?`<div class="chart-bval">${x.c}</div>`:''}
+            <div class="chart-bar" style="height:${(x.c/maxC*100).toFixed(0)}%;background:${x.mo===curMo_?'var(--gold)':'rgba(96,165,250,0.5)'}"></div>
+            <div class="chart-blbl">${x.label}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    ${alertN>0?`
+      <div class="stl">⚠️ Alerts</div>
+      ${noSup.length?`<div class="apill ar">🔴 ${noSup.length} booking${noSup.length>1?'s':''} missing supplier</div>`:''}
+      ${noPrice.length?`<div class="apill ao">🟠 ${noPrice.length} booking${noPrice.length>1?'s':''} missing price</div>`:''}
+      ${hasRest.length?`<div class="apill ay">🟡 ${hasRest.length} booking${hasRest.length>1?'s':''} with pending rest</div>`:''}
+    `:`<div class="apill ag">✅ No alerts for ${fmtMo(curMo_)}</div>`}
+
+    ${upcoming.length?`<div class="stl" style="margin-top:14px">🔔 Upcoming (next 3 days)</div>${upcoming.map(b=>`
+      <div class="upc">
+        <div>
+          <div class="cg" style="font-weight:700;font-size:13.5px">${b.trip||'—'}</div>
+          <div class="cm" style="font-size:11.5px">${b.hotel||'—'} · ${b.adults||0} pax</div>
+        </div>
+        <div style="text-align:right">
+          <div class="cb" style="font-size:12.5px">${fd(b.date)}</div>
+          <div class="cg" style="font-size:11.5px">${b.pickup||''}</div>
+        </div>
+      </div>`).join('')}`:''}
+  `;
+}
+
+// ============================================================
+// BOOKINGS
+// ============================================================
+function rBook(){
+  const mb=moBooks(curMo_);
+  let items=mb;
+  if(bFilter==='rest')items=items.filter(b=>+b.rest>0);
+  else if(bFilter==='nosup')items=items.filter(b=>!b.sup);
+  else if(bFilter==='paid')items=items.filter(b=>b.price&&+b.rest===0);
+  if(bSearch)items=D.bookings.filter(b=>[b.hotel,b.trip,b.nat,b.sup,b.sales,b.phone,b.notes].some(v=>v&&v.toLowerCase().includes(bSearch.toLowerCase())));
+
+  // Build supplier filter options
+  const supps=uniq('sup').slice(0,6);
+
+  document.getElementById('p-book').innerHTML=`
+    <div class="swrap">
+      <span class="sico">🔍</span>
+      <input class="si" id="bsearch" type="text" placeholder="Search hotel, trip, nationality..." value="${bSearch}" oninput="bSearch=this.value;rBook()">
+    </div>
+    <div class="chips">
+      <div class="chip ${bFilter==='all'?'on':''}" onclick="bFilter='all';bSearch='';rBook()">All (${mb.length})</div>
+      <div class="chip ${bFilter==='rest'?'on':''}" onclick="bFilter='rest';bSearch='';rBook()">⏳ Has Rest</div>
+      <div class="chip ${bFilter==='nosup'?'on':''}" onclick="bFilter='nosup';bSearch='';rBook()">🔴 No Supplier</div>
+      <div class="chip ${bFilter==='paid'?'on':''}" onclick="bFilter='paid';bSearch='';rBook()">✅ Paid</div>
+      ${supps.map(s=>`<div class="chip ${bSearch===s?'on':''}" onclick="bSearch='${s}';bFilter='all';rBook()">${s}</div>`).join('')}
+    </div>
+    <div class="cm" style="font-size:11.5px;margin-bottom:9px">${items.length} booking${items.length!==1?'s':''}</div>
+    ${items.length===0?`<div class="empty">No bookings found.<br>Tap ＋ to add a booking.</div>`:items.map(b=>bCard(b)).join('')}
+  `;
+}
+
+function bCard(b){
+  const cls=!b.sup?'bc-r':(!b.price||+b.price===0)?'bc-o':(+b.rest>0?'bc-y':'bc-g');
+  const s=SYM[b.cur]||'$';
+  const isOpen=expandedCard===b.id;
+  return`<div class="bcard ${cls}" id="bc-${b.id}" onclick="toggleCard(${b.id})">
+    <div class="bc-top">
+      <div class="bc-trip">${b.trip||'No Trip'}</div>
+      <div class="bc-date">${fd(b.date)}</div>
+    </div>
+    <div class="bc-info">
+      🏨 ${b.hotel||'—'} ${b.room||''} &nbsp;·&nbsp; 🕐 ${b.pickup||'—'}<br>
+      👥 ${b.adults||'0'}${b.ch&&b.ch!='0'?' / '+b.ch+' Ch':''}${b.inf&&b.inf!='0'?' / '+b.inf+' Inf':''} &nbsp;·&nbsp; 🌍 ${b.nat||'—'}<br>
+      ${b.sup?`🤝 ${b.sup}${b.sales?' · 👤 '+b.sales:''}`:`<span class="cr">⚠️ No supplier</span>`}
+    </div>
+    <div class="bc-foot">
+      <div>
+        ${b.price?`<span class="cgr" style="font-weight:700;font-size:14px">${s}${b.price}</span>`:`<span class="co" style="font-size:12.5px">No price</span>`}
+        ${+b.rest>0?`<span class="co" style="font-size:12px;margin-left:6px">Rest:${s}${b.rest}</span>`:''}
+        ${+b.profit>0?`<span class="cgr" style="font-size:11px;margin-left:6px">P:${s}${b.profit}</span>`:''}
+      </div>
+      <div onclick="event.stopPropagation()" style="display:flex;gap:5px">
+        <button class="btn bsm bwa" onclick="showWA(${b.id})">📱</button>
+        <button class="btn bsm bbl" onclick="openBForm(${b.id})">✏️</button>
+        <button class="btn bsm brd" onclick="delBook(${b.id})">🗑️</button>
+      </div>
+    </div>
+    <div class="bc-detail ${isOpen?'open':''}" onclick="event.stopPropagation()">
+      ${[['Day',dayName(b.date)],['Res. Date',fd(b.resDate)],['Pick Up',b.pickup||'—'],['Phone',b.phone||'—'],['Notes',b.notes||'—'],['Cost',b.cost?s+b.cost:'—'],['Net Profit',b.profit?s+b.profit:'—']].map(([k,v])=>`
+        <div class="bc-drow"><span class="cm">${k}</span><span style="font-weight:500">${v}</span></div>`).join('')}
+      <button class="btn bg bfw" style="margin-top:10px;font-size:13px" onclick="genBookInv(${b.id})">🧾 Generate Invoice</button>
+    </div>
+  </div>`;
+}
+
+function toggleCard(id){
+  expandedCard=expandedCard===id?null:id;
+  const det=document.getElementById('bc-'+id)?.querySelector('.bc-detail');
+  if(det)det.classList.toggle('open',expandedCard===id);
+}
+
+// BOOKING FORM
+function openBForm(id){
+  const b=id?D.bookings.find(x=>x.id===id):null;
+  const isNew=!b;
+  const t=b||{id:null,resDate:new Date().toISOString().split('T')[0],date:'',trip:'',adults:'',ch:'0',inf:'0',hotel:'',room:'',pickup:'',nat:'',cur:D.cfg.currency,price:'',dep:'',rest:'',cost:'',profit:'',sup:'',sales:'',phone:'',notes:''};
+
+  document.getElementById('m-book-ttl').textContent=isNew?'➕ New Booking':'✏️ Edit Booking';
+  document.getElementById('m-book-body').innerHTML=`
+    <div class="fsec" style="border-left-color:var(--gold)">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px" class="cg">📅 Dates</div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Res. Date</label><input type="date" class="fi" id="f-rd" value="${t.resDate||''}"></div>
+        <div class="fg"><label class="fl">Trip Date</label><input type="date" class="fi" id="f-dt" value="${t.date||''}"></div>
+      </div>
+    </div>
+    <div class="fsec" style="border-left-color:var(--blue)">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px" class="cb">✈️ Trip Info</div>
+      <div class="fg"><label class="fl">Trip</label><div style="position:relative"><input type="text" class="fi" id="f-tr" value="${t.trip||''}" placeholder="e.g. Sinai Moses" autocomplete="off"></div></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Adults (pax)</label><input type="text" class="fi" id="f-ad" value="${t.adults||''}" placeholder="e.g. 2 or 2*1"></div>
+        <div class="fg"><label class="fl">Children</label><input type="number" class="fi" id="f-ch" value="${t.ch||'0'}" min="0"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Infants</label><input type="number" class="fi" id="f-in" value="${t.inf||'0'}" min="0"></div>
+        <div class="fg"><label class="fl">Nationality</label><input type="text" class="fi" id="f-na" value="${t.nat||''}" placeholder="e.g. Polish" autocomplete="off"></div>
+      </div>
+    </div>
+    <div class="fsec" style="border-left-color:var(--green)">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px" class="cgr">🏨 Hotel</div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Hotel</label><input type="text" class="fi" id="f-ht" value="${t.hotel||''}" placeholder="Hotel name" autocomplete="off"></div>
+        <div class="fg"><label class="fl">Room</label><input type="text" class="fi" id="f-rm" value="${t.room||''}" placeholder="Room no."></div>
+      </div>
+      <div class="fg"><label class="fl">Pick Up</label><input type="text" class="fi" id="f-pu" value="${t.pickup||''}" placeholder="e.g. 22:00"></div>
+    </div>
+    <div class="fsec" style="border-left-color:var(--ora)">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px" class="co">💰 Financials</div>
+      <div class="fg"><label class="fl">Currency</label>
+        <select class="fsel" id="f-cu" onchange="rfCalc()">
+          ${CURR.map(c=>`<option value="${c}" ${t.cur===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Price</label><input type="number" class="fi" id="f-pr" value="${t.price||''}" oninput="rfCalc()" placeholder="0" step="0.01" inputmode="decimal"></div>
+        <div class="fg"><label class="fl">Deposit (Dep)</label><input type="number" class="fi" id="f-dp" value="${t.dep||''}" oninput="rfCalc()" placeholder="0" step="0.01" inputmode="decimal"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Rest (auto)</label><div class="fro co" id="f-rs">${t.rest||'0'}</div></div>
+        <div class="fg"><label class="fl">Cost (Supplier)</label><input type="number" class="fi" id="f-co" value="${t.cost||''}" oninput="rfCalc()" placeholder="0" step="0.01" inputmode="decimal"></div>
+      </div>
+      <div class="fg"><label class="fl">Profit (auto)</label><div class="fro" id="f-pf" style="color:${(+t.profit||0)>=0?'var(--green)':'var(--red)'}">${t.profit||'0'}</div></div>
+    </div>
+    <div class="fsec" style="border-left-color:var(--pur)">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px" class="cp">👤 Team</div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Supplier</label><input type="text" class="fi" id="f-sp" value="${t.sup||''}" placeholder="Supplier" autocomplete="off"></div>
+        <div class="fg"><label class="fl">Sales</label><input type="text" class="fi" id="f-sl" value="${t.sales||''}" placeholder="Sales person" autocomplete="off"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Phone</label><input type="tel" class="fi" id="f-ph" value="${t.phone||''}" placeholder="+20..." inputmode="tel"></div>
+        <div class="fg"><label class="fl">Notes</label><input type="text" class="fi" id="f-no" value="${t.notes||''}" placeholder="Notes"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:9px;margin-top:4px">
+      <button class="btn bo" onclick="closeM('m-book')" style="flex:1">Cancel</button>
+      <button class="btn bg" onclick="saveBForm(${t.id||'null'})" style="flex:2">${isNew?'➕ Save':'✅ Update'}</button>
+    </div>
+    <div style="height:20px"></div>
+  `;
+  document.getElementById('m-book').classList.add('show');
+  // Autocomplete
+  makeAC('f-tr', uniq('trip'));
+  makeAC('f-na', uniq('nat'));
+  makeAC('f-ht', uniq('hotel'));
+  makeAC('f-sp', uniq('sup'));
+  makeAC('f-sl', uniq('sales'));
+}
+
+function rfCalc(){
+  const pr=+gv('f-pr')||0,dp=+gv('f-dp')||0,co=+gv('f-co')||0;
+  const rest=Math.max(0,pr-dp),prf=pr-co;
+  document.getElementById('f-rs').textContent=rest.toFixed(2);
+  const el=document.getElementById('f-pf');
+  el.textContent=prf.toFixed(2);el.style.color=prf>=0?'var(--green)':'var(--red)';
+}
+
+function saveBForm(id){
+  const pr=+gv('f-pr')||0,dp=+gv('f-dp')||0,co=+gv('f-co')||0;
+  const b={
+    id:id||gid(),resDate:gv('f-rd'),date:gv('f-dt'),
+    trip:gv('f-tr'),adults:gv('f-ad'),ch:gv('f-ch'),inf:gv('f-in'),
+    hotel:gv('f-ht'),room:gv('f-rm'),pickup:gv('f-pu'),nat:gv('f-na'),
+    cur:gv('f-cu'),price:pr.toString(),dep:dp.toString(),
+    rest:Math.max(0,pr-dp).toFixed(2),cost:co.toString(),profit:(pr-co).toFixed(2),
+    sup:gv('f-sp'),sales:gv('f-sl'),phone:gv('f-ph'),notes:gv('f-no'),
+  };
+  if(!id){D.bookings.unshift(b);notif('✅ Booking added!');}
+  else{const i=D.bookings.findIndex(x=>x.id===id);if(i!==-1)D.bookings[i]=b;notif('✅ Updated!');}
+  save();closeM('m-book');rBook();
+}
+
+function delBook(id){
+  if(!confirm('Delete this booking?'))return;
+  D.bookings=D.bookings.filter(b=>b.id!==id);
+  save();notif('Deleted','w');rBook();
+}
+
+// WhatsApp
+function showWA(id){
+  const b=D.bookings.find(x=>x.id===id);if(!b)return;
+  const s=SYM[b.cur]||'$';
+  const lines=[];
+  if(b.date)lines.push(fd(b.date));
+  if(b.trip)lines.push(b.trip);
+  let pax='';
+  if(b.adults)pax+=b.adults+' Adults';
+  if(b.ch&&b.ch!=='0')pax+=' / '+b.ch+' Children';
+  if(b.inf&&b.inf!=='0')pax+=' / '+b.inf+' Infants';
+  if(pax)lines.push(pax);
+  if(b.hotel||b.room)lines.push((b.hotel+' '+b.room).trim());
+  if(b.pickup)lines.push('Pick up '+b.pickup);
+  if(+b.rest>0)lines.push('Rest '+s+b.rest);
+  if(b.nat)lines.push(b.nat);
+  document.getElementById('wa-msg').textContent=lines.join('\n');
+  document.getElementById('m-wa').classList.add('show');
+}
+
+function copyWA(){
+  const msg=document.getElementById('wa-msg').textContent;
+  navigator.clipboard.writeText(msg).then(()=>notif('📋 Copied!'));
+}
+
+function openWA(){
+  const msg=encodeURIComponent(document.getElementById('wa-msg').textContent);
+  window.open('https://wa.me/?text='+msg,'_blank');
+}
+
+// ============================================================
+// TREASURY
+// ============================================================
+function rTres(){
+  const bal=balEGP();
+  const inc=D.treasury.filter(t=>t.type==='i').reduce((s,t)=>s+(+t.amt||0),0);
+  const exp=D.treasury.filter(t=>t.type==='e').reduce((s,t)=>s+(+t.amt||0),0);
+
+  // Running balance for each tx
+  let running=0;
+  const txWithBal=[...D.treasury].reverse().map(t=>{
+    running=t.type==='i'?running+(+t.amt||0):running-(+t.amt||0);
+    return{...t,bal:running};
+  }).reverse();
+
+  document.getElementById('p-tres').innerHTML=`
+    <div class="t-hero" style="${bal<+D.cfg.minBalance?'border-color:rgba(248,113,113,.5)':''}">
+      <div class="sc-lbl" style="text-transform:uppercase;letter-spacing:2px">Treasury Balance</div>
+      <div class="t-bal ${bal<+D.cfg.minBalance?'cr':'cgr'}">${bal<0?'-':''}E£${Math.abs(bal).toLocaleString()}</div>
+      ${bal<+D.cfg.minBalance?`<div class="cr" style="font-size:12px;margin-top:4px">⚠️ Below minimum (E£${(+D.cfg.minBalance).toLocaleString()})</div>`:`<div class="cgr" style="font-size:12px;margin-top:4px">✅ Healthy balance</div>`}
+      <div class="t-row">
+        <div><div class="cgr" style="font-size:16px;font-weight:700">E£${inc.toLocaleString()}</div><div class="sc-lbl">Income</div></div>
+        <div><div class="cr" style="font-size:16px;font-weight:700">E£${exp.toLocaleString()}</div><div class="sc-lbl">Expenses</div></div>
+      </div>
+    </div>
+    <button class="btn bg bfw" style="margin-bottom:13px" onclick="openTresForm()">+ Add Transaction</button>
+    <div class="stl">Recent Transactions</div>
+    ${D.treasury.length===0?'<div class="empty">No transactions yet.<br>Tap + Add to record one.</div>':txWithBal.slice(0,60).map(t=>`
+      <div class="ttx ${t.type==='i'?'ttx-i':'ttx-e'}">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13.5px;font-weight:600">${t.desc||'—'}</div>
+          <div class="cm" style="font-size:11px">${t.date} · ${t.cat||'General'}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:8px">
+          <div class="${t.type==='i'?'cgr':'cr'}" style="font-weight:700;font-size:14.5px">${t.type==='i'?'+':'-'}E£${(+t.amt).toLocaleString()}</div>
+          <div class="cm" style="font-size:10.5px">Bal: E£${t.bal.toLocaleString()}</div>
+        </div>
+      </div>`).join('')}
+  `;
+}
+
+function openTresForm(){
+  document.getElementById('m-tres-body').innerHTML=`
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="btn bgr bfw" onclick="setTT('i',this)" id="tt-i">📥 Income</button>
+      <button class="btn bo bfw" onclick="setTT('e',this)" id="tt-e">📤 Expense</button>
+    </div>
+    <input type="hidden" id="tt-type" value="i">
+    <div class="fg"><label class="fl">Date</label><input type="date" class="fi" id="tt-dt" value="${new Date().toISOString().split('T')[0]}"></div>
+    <div class="fg"><label class="fl">Description</label><input type="text" class="fi" id="tt-desc" placeholder="What is this for?"></div>
+    <div class="fg"><label class="fl">Category</label><input type="text" class="fi" id="tt-cat" placeholder="e.g. Supplier payment, Salary, Rent" autocomplete="off"></div>
+    <div class="fg"><label class="fl">Amount (EGP)</label><input type="number" class="fi" id="tt-amt" placeholder="0" step="1" inputmode="numeric"></div>
+    <div style="display:flex;gap:9px;margin-top:8px">
+      <button class="btn bo" onclick="closeM('m-tres')" style="flex:1">Cancel</button>
+      <button class="btn bg" onclick="saveTres()" style="flex:2">✅ Add</button>
+    </div>
+  `;
+  makeAC('tt-cat',[...new Set(D.treasury.map(t=>t.cat).filter(Boolean))].sort());
+  document.getElementById('m-tres').classList.add('show');
+}
+
+function setTT(type,btn){
+  document.getElementById('tt-type').value=type;
+  document.getElementById('tt-i').className=`btn bfw ${type==='i'?'bgr':'bo'}`;
+  document.getElementById('tt-e').className=`btn bfw ${type==='e'?'brd':'bo'}`;
+}
+
+function saveTres(){
+  const amt=+gv('tt-amt');
+  if(!amt||amt<=0){notif('Enter a valid amount','e');return;}
+  D.treasury.unshift({id:gid(),date:gv('tt-dt'),desc:gv('tt-desc'),type:gv('tt-type'),amt:amt.toString(),cat:gv('tt-cat')});
+  save();notif('✅ Transaction added!');closeM('m-tres');rTres();
+}
+
+// ============================================================
+// REPORTS
+// ============================================================
+function rRep(){
+  const mb=moBooks(curMo_);
+  document.getElementById('p-rep').innerHTML=`
+    <div class="rtabs">
+      ${[['payments','💳 Payments'],['suppliers','🤝 Suppliers'],['trips','✈️ Trips'],['nations','🌍 Nations'],['profit','💹 Profit'],['sales','👤 Sales'],['compare','📊 Compare']].map(([r,l])=>
+        `<button class="rtab ${curRep===r?'on':''}" onclick="swRep('${r}')">${l}</button>`).join('')}
+    </div>
+    <div id="rep-body"></div>
+  `;
+  renderRepBody(mb);
+}
+
+function swRep(r){
+  curRep=r;
+  document.querySelectorAll('.rtab').forEach((b,i)=>{
+    b.classList.toggle('on',['payments','suppliers','trips','nations','profit','sales','compare'][i]===r);
+  });
+  renderRepBody(moBooks(curMo_));
+}
+
+function renderRepBody(mb){
+  const el=document.getElementById('rep-body');if(!el)return;
+  const s=SYM[D.cfg.currency]||'$';
+
+  if(curRep==='payments'){
+    const wr=mb.filter(b=>+b.rest>0),pd=mb.filter(b=>!+b.rest||+b.rest<=0);
+    const rByCur={};wr.forEach(b=>{rByCur[b.cur]=(rByCur[b.cur]||0)+(+b.rest||0);});
+    el.innerHTML=`
+      <div class="sgrid" style="margin-bottom:11px">
+        <div class="sc"><div class="sc-lbl">✅ Fully Paid</div><div class="sc-val cgr">${pd.length}</div></div>
+        <div class="sc"><div class="sc-lbl">⏳ Has Rest</div><div class="sc-val co">${wr.length}</div></div>
+      </div>
+      ${Object.entries(rByCur).map(([c,a])=>`
+        <div class="card" style="display:flex;justify-content:space-between;border-color:rgba(251,146,60,.28)">
+          <span class="cm">Total Rest (${c})</span>
+          <span class="co" style="font-weight:700">${SYM[c]||''}${a.toFixed(2)}</span>
+        </div>`).join('')}
+      <div class="stl" style="margin-top:12px">Pending Payments</div>
+      ${wr.length===0?'<div class="empty">All paid! 🎉</div>':wr.sort((a,b)=>new Date(a.date)-new Date(b.date)).map(b=>`
+        <div class="card" style="display:flex;justify-content:space-between;align-items:center;border-color:rgba(251,191,36,.25)">
+          <div>
+            <div style="font-weight:600;font-size:13.5px">${b.hotel||'—'}</div>
+            <div class="cm" style="font-size:11.5px">${b.trip||'—'} · ${fd(b.date)} · ${b.nat||'—'}</div>
+            ${b.phone?`<div class="cb" style="font-size:11px">${b.phone}</div>`:''}
+          </div>
+          <div class="co" style="font-weight:700;white-space:nowrap;margin-left:8px">${SYM[b.cur]||''}${b.rest}</div>
+        </div>`).join('')}`;
+  }
+
+  else if(curRep==='suppliers'){
+    const st={};
+    mb.forEach(b=>{if(!b.sup)return;if(!st[b.sup])st[b.sup]={c:0,rest:0,prf:0,trips:[]};st[b.sup].c++;if(b.cur===D.cfg.currency){st[b.sup].rest+=(+b.rest||0);st[b.sup].prf+=(+b.profit||0);}if(b.trip&&!st[b.sup].trips.includes(b.trip))st[b.sup].trips.push(b.trip);});
+    const sorted=Object.entries(st).sort((a,b)=>b[1].c-a[1].c);
+    el.innerHTML=sorted.length===0?'<div class="empty">No supplier data</div>':sorted.map(([name,d])=>`
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div class="cg" style="font-weight:700;font-size:14.5px">${name}</div>
+          <div style="text-align:right">
+            <div class="cb" style="font-weight:700">${d.c} booking${d.c!==1?'s':''}</div>
+            ${d.rest>0?`<div class="co" style="font-size:11.5px">Rest: ${s}${d.rest.toFixed(0)}</div>`:''}
+          </div>
+        </div>
+        ${d.trips.length?`<div class="cm" style="font-size:11.5px;margin-top:5px">🗺️ ${d.trips.slice(0,4).join(' · ')}</div>`:''}
+        ${d.prf>0?`<div class="cgr" style="font-size:11.5px;margin-top:3px">Profit: ${s}${d.prf.toFixed(0)}</div>`:''}
+      </div>`).join('');
+  }
+
+  else if(curRep==='trips'){
+    const st={};mb.forEach(b=>{if(!b.trip)return;if(!st[b.trip])st[b.trip]={c:0,pax:0,prf:0};st[b.trip].c++;st[b.trip].pax+=(+b.adults||0)+(+b.ch||0);if(b.cur===D.cfg.currency)st[b.trip].prf+=(+b.profit||0);});
+    const max=Math.max(...Object.values(st).map(d=>d.c),1);
+    el.innerHTML=Object.keys(st).length===0?'<div class="empty">No trip data</div>':Object.entries(st).sort((a,b)=>b[1].c-a[1].c).map(([t,d])=>`
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <div class="cb" style="font-weight:700">${t}</div>
+          <div><span class="cg" style="font-weight:700">${d.c}</span> <span class="cm" style="font-size:11.5px">trips · ${d.pax} pax</span></div>
+        </div>
+        <div class="pbar"><div class="pfill" style="width:${(d.c/max*100).toFixed(0)}%;background:var(--blue)"></div></div>
+        ${d.prf>0?`<div class="cgr" style="font-size:11px;margin-top:4px">Profit: ${s}${d.prf.toFixed(0)}</div>`:''}
+      </div>`).join('');
+  }
+
+  else if(curRep==='nations'){
+    const st={};mb.forEach(b=>{if(!b.nat)return;if(!st[b.nat])st[b.nat]={c:0,prf:0};st[b.nat].c++;if(b.cur===D.cfg.currency)st[b.nat].prf+=(+b.profit||0);});
+    const sorted=Object.entries(st).sort((a,b)=>b[1].c-a[1].c);
+    const max=sorted[0]?.[1]?.c||1;
+    el.innerHTML=sorted.length===0?'<div class="empty">No nationality data</div>':sorted.map(([n,d])=>`
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <div style="font-weight:600">${n}</div>
+          <div class="cg" style="font-weight:700">${d.c} booking${d.c!==1?'s':''}</div>
+        </div>
+        <div class="pbar"><div class="pfill" style="width:${(d.c/max*100).toFixed(0)}%;background:var(--pur)"></div></div>
+        ${d.prf>0?`<div class="cgr" style="font-size:11px;margin-top:3px">Profit: ${s}${d.prf.toFixed(0)}</div>`:''}
+      </div>`).join('');
+  }
+
+  else if(curRep==='profit'){
+    const st={};
+    mb.filter(b=>b.cur===D.cfg.currency).forEach(b=>{
+      if(!b.trip)return;
+      if(!st[b.trip])st[b.trip]={pr:0,co:0,c:0};
+      st[b.trip].pr+=(+b.price||0);st[b.trip].co+=(+b.cost||0);st[b.trip].c++;
+    });
+    const totPr=mb.filter(b=>b.cur===D.cfg.currency).reduce((sum,b)=>sum+(+b.price||0),0);
+    const totCo=mb.filter(b=>b.cur===D.cfg.currency).reduce((sum,b)=>sum+(+b.cost||0),0);
+    const gp=totPr-totCo;const mgn=totPr>0?(gp/totPr*100).toFixed(1):0;
+    el.innerHTML=`
+      <div class="sgrid" style="margin-bottom:11px">
+        <div class="sc"><div class="sc-lbl">💵 Revenue</div><div class="sc-val cgr">${s}${totPr.toFixed(0)}</div></div>
+        <div class="sc"><div class="sc-lbl">💹 Gross Profit</div><div class="sc-val ${gp>=0?'cgr':'cr'}">${s}${gp.toFixed(0)}</div></div>
+        <div class="sc"><div class="sc-lbl">💸 Total Cost</div><div class="sc-val co">${s}${totCo.toFixed(0)}</div></div>
+        <div class="sc"><div class="sc-lbl">📊 Margin</div><div class="sc-val cp">${mgn}%</div></div>
+      </div>
+      ${Object.keys(st).length===0?'<div class="empty">Add prices &amp; costs to see profit data</div>':Object.entries(st).sort((a,b)=>(b[1].pr-b[1].co)-(a[1].pr-a[1].co)).map(([t,d])=>{
+        const p=d.pr-d.co;
+        return`<div class="card" style="border-left:3px solid ${p>=0?'var(--green)':'var(--red)'}">
+          <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+            <div style="font-weight:700">${t}</div>
+            <div class="${p>=0?'cgr':'cr'}" style="font-weight:700">${s}${p.toFixed(0)}</div>
+          </div>
+          <div class="cm" style="font-size:11.5px">Rev:${s}${d.pr.toFixed(0)} · Cost:${s}${d.co.toFixed(0)} · ${d.c} trip${d.c!==1?'s':''}</div>
+        </div>`;
+      }).join('')}`;
+  }
+
+  else if(curRep==='sales'){
+    const st={};
+    mb.forEach(b=>{if(!b.sales)return;if(!st[b.sales])st[b.sales]={c:0,rev:0,prf:0};st[b.sales].c++;if(b.cur===D.cfg.currency){st[b.sales].rev+=(+b.price||0);st[b.sales].prf+=(+b.profit||0);}});
+    const sorted=Object.entries(st).sort((a,b)=>b[1].c-a[1].c);
+    const top=sorted[0]?.[0];
+    el.innerHTML=sorted.length===0?'<div class="empty">No sales data</div>':sorted.map(([name,d])=>`
+      <div class="card" style="${name===top?'border-color:var(--gold)':''}">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            ${name===top?`<div class="cg" style="font-size:10.5px;margin-bottom:1px">⭐ Top Sales</div>`:''}
+            <div style="font-weight:700;font-size:14.5px">${name}</div>
+            <div class="cm" style="font-size:11.5px">${d.c} booking${d.c!==1?'s':''}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="cgr" style="font-weight:700">${s}${d.rev.toFixed(0)}</div>
+            <div class="cp" style="font-size:11.5px">P: ${s}${d.prf.toFixed(0)}</div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  else if(curRep==='compare'){
+    const months={};
+    D.bookings.forEach(b=>{
+      if(!b.date)return;
+      const mo=b.date.slice(0,7);
+      if(!months[mo])months[mo]={c:0,pax:0,rev:0,prf:0,rest:0};
+      months[mo].c++;months[mo].pax+=(+b.adults||0)+(+b.ch||0);
+      if(b.cur===D.cfg.currency){months[mo].rev+=(+b.price||0);months[mo].prf+=(+b.profit||0);months[mo].rest+=(+b.rest||0);}
+    });
+    const sorted=Object.entries(months).sort((a,b)=>b[0].localeCompare(a[0]));
+    const topRev=sorted.length?sorted.reduce((m,x)=>x[1].rev>m[1].rev?x:m,sorted[0])[0]:'';
+    el.innerHTML=sorted.length===0?'<div class="empty">No data to compare</div>':sorted.map(([mo,d])=>`
+      <div class="card" style="${mo===topRev?'border-color:var(--gold)':''}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            ${mo===topRev?`<div class="cg" style="font-size:10px;margin-bottom:1px">⭐ Best Month</div>`:''}
+            <div style="font-weight:700;font-size:14px">${fmtMo(mo)}</div>
+            <div class="cm" style="font-size:11.5px">${d.c} bookings · ${d.pax} pax</div>
+          </div>
+          <div style="text-align:right">
+            <div class="cgr" style="font-weight:700">${s}${d.rev.toFixed(0)}</div>
+            <div class="cm" style="font-size:11px">P:${s}${d.prf.toFixed(0)} R:${s}${d.rest.toFixed(0)}</div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function rSet(){
+  const c=D.cfg;
+  document.getElementById('p-set').innerHTML=`
+    <div style="padding:4px 0 14px">
+      <div class="cg" style="font-size:18px;font-weight:800">⚙️ Settings</div>
+      <div class="cm" style="font-size:12px">Customize the app for your company</div>
+    </div>
+
+    <div class="card card-gold">
+      <div class="stl" style="margin-bottom:10px">🏢 Company</div>
+      <div class="fg"><label class="fl">Company Name</label><input type="text" class="fi" id="s-name" value="${c.companyName||'Royal Sharm Travel'}" oninput="saveCfg()"></div>
+      <div class="fg"><label class="fl">Default Currency</label>
+        <select class="fsel" id="s-cur" onchange="saveCfg();renderTab('dash')">
+          ${CURR.map(cr=>`<option value="${cr}" ${c.currency===cr?'selected':''}>${cr}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Min. Treasury Balance (EGP)</label><input type="number" class="fi" id="s-minbal" value="${c.minBalance||10000}" oninput="saveCfg()" inputmode="numeric"></div>
+    </div>
+
+    <div class="card">
+      <div class="stl" style="margin-bottom:10px">📱 Mobile App</div>
+      <div class="setting-row">
+        <div>
+          <div class="sr-lbl">Install as Mobile App</div>
+          <div class="sr-sub">Add to home screen for app-like experience</div>
+        </div>
+        <button class="btn bg2 bsm" onclick="openInstall()">How to install</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="stl" style="margin-bottom:10px">💾 Data</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn bgr bfw" onclick="exportJSON()">📥 Export Backup (JSON)</button>
+        <button class="btn bbl bfw" onclick="exportCSV()">📊 Export to CSV (Google Sheets)</button>
+        <div class="fg" style="margin-top:4px"><label class="fl">Import Backup (paste JSON)</label><textarea class="fi fta" id="import-json" rows="3" placeholder='Paste backup JSON here...'></textarea></div>
+        <button class="btn bor bfw" onclick="importJSON()">📤 Import & Restore</button>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:rgba(248,113,113,.25)">
+      <div class="stl" style="margin-bottom:10px">⚠️ Danger Zone</div>
+      <div class="cm" style="font-size:12px;margin-bottom:10px">Permanently delete all data — cannot be undone</div>
+      <button class="btn brd bfw" onclick="clearAll()">🗑️ Clear All Data</button>
+    </div>
+
+    <div class="card">
+      <div class="stl" style="margin-bottom:6px">🧾 Quick Invoices</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button class="btn bbl bfw" onclick="genButterflyInv()">🦋 Butterfly Invoice (${fmtMo(curMo_)})</button>
+        <button class="btn bpu bfw" onclick="genMSaadInv()">📄 M.Saad Invoice (${fmtMo(curMo_)})</button>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:20px 0;color:var(--faint);font-size:11px">
+      Royal Sharm Travel Management System<br>v2.0 · Built for Amr Yakout
+    </div>
+  `;
+}
+
+function saveCfg(){
+  D.cfg.companyName=gv('s-name');
+  D.cfg.currency=document.getElementById('s-cur')?.value||'USD';
+  D.cfg.minBalance=+(gv('s-minbal'))||10000;
+  save();
+  document.getElementById('hdr-brand').textContent=D.cfg.companyName.toUpperCase().slice(0,14)||'ROYAL SHARM';
+}
+
+function exportJSON(){
+  const j=JSON.stringify(D,null,2);
+  const b=new Blob([j],{type:'application/json'});
+  const u=URL.createObjectURL(b);const a=document.createElement('a');
+  a.href=u;a.download=`royal_sharm_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();URL.revokeObjectURL(u);notif('📥 Backup exported!');
+}
+
+function exportCSV(){
+  const hdrs=['ID','Res Date','Trip Date','Day','Trip','Adults','Children','Infants','Hotel','Room','Pick Up','Nationality','Currency','Price','Dep','Rest','Cost','Profit','Supplier','Sales','Phone','Notes'];
+  const rows=D.bookings.map(b=>[b.id,b.resDate,b.date,dayName(b.date),b.trip,b.adults,b.ch,b.inf,b.hotel,b.room,b.pickup,b.nat,b.cur,b.price,b.dep,b.rest,b.cost,b.profit,b.sup,b.sales,b.phone,b.notes].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
+  const csv=[hdrs.join(','),...rows].join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const u=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=u;a.download=`royal_sharm_bookings_${curMo_}.csv`;a.click();URL.revokeObjectURL(u);
+  notif('📊 CSV exported!');
+}
+
+function importJSON(){
+  const txt=document.getElementById('import-json')?.value?.trim();
+  if(!txt){notif('Paste JSON first','e');return;}
+  try{
+    const p=JSON.parse(txt);
+    if(!p.bookings||!p.treasury){notif('Invalid backup','e');return;}
+    if(!confirm(`Import ${p.bookings.length} bookings and ${p.treasury.length} transactions? Current data will be replaced.`))return;
+    D={...D,...p,cfg:{...D.cfg,...(p.cfg||{})}};save();
+    notif('✅ Data imported!');renderTab('set');
+  }catch(e){notif('Invalid JSON','e');}
+}
+
+function clearAll(){
+  if(!confirm('Delete ALL data?'))return;
+  if(!confirm('Are you absolutely sure? This cannot be undone.'))return;
+  D={bookings:[],treasury:[],cfg:{...D.cfg}};save();notif('Data cleared','w');renderTab(curTab);
+}
+
+// ============================================================
+// INVOICES (accessible from Settings)
+// ============================================================
+function genButterflyInv(){
+  const items=moBooks(curMo_).filter(b=>b.sup&&b.sup.toLowerCase().includes('butterfly'));
+  if(!items.length){notif('No Butterfly bookings this month','w');return;}
+  const total=items.reduce((s,b)=>s+(+b.price||0),0);
+  const sym=SYM[items[0]?.cur]||'$';
+  openMoreSheet(`🦋 Butterfly Invoice — ${fmtMo(curMo_)}`,`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;background:var(--gold);border-radius:8px 8px 0 0;padding:8px 10px;font-weight:700;font-size:11px;color:#081526;gap:4px">
+      <div>Date</div><div>Trip</div><div>Hotel</div><div>Pax</div><div>Price</div>
+    </div>
+    ${items.map(b=>`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:4px;padding:8px 10px;border-bottom:1px solid var(--b1);font-size:11.5px"><div>${fd(b.date)}</div><div>${b.trip||'—'}</div><div>${b.hotel||'—'}</div><div>${b.adults||'0'}</div><div class="cgr">${sym}${b.price||'0'}</div></div>`).join('')}
+    <div style="text-align:right;margin-top:12px"><div class="cm" style="font-size:11.5px">${items.length} bookings</div><div class="cg" style="font-size:18px;font-weight:800">Total: ${sym}${total.toFixed(2)}</div></div>
+  `);
+}
+
+function genMSaadInv(){
+  const items=moBooks(curMo_).filter(b=>b.sup&&(b.sup.toLowerCase().includes('saad')||b.sup.toLowerCase().includes('msaad')));
+  if(!items.length){notif('No M.Saad bookings this month','w');return;}
+  const net=items.reduce((s,b)=>s+(+b.price||0)-(+b.rest||0),0);
+  const sym=SYM[items[0]?.cur]||'$';
+  openMoreSheet(`📄 M.Saad Invoice — ${fmtMo(curMo_)}`,`
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;background:var(--gold);border-radius:8px 8px 0 0;padding:8px 10px;font-weight:700;font-size:10px;color:#081526;gap:3px">
+      <div>Date</div><div>Trip</div><div>Hotel</div><div>NAT</div><div>Price</div><div>Rest</div>
+    </div>
+    ${items.map(b=>`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr;gap:3px;padding:7px 10px;border-bottom:1px solid var(--b1);font-size:10.5px"><div>${fd(b.date)}</div><div>${b.trip||'—'}</div><div>${b.hotel||'—'}</div><div>${b.nat||'—'}</div><div class="cgr">${sym}${b.price||'0'}</div><div class="${+b.rest>0?'co':'cgr'}">${sym}${b.rest||'0'}</div></div>`).join('')}
+    <div style="text-align:right;margin-top:12px"><div class="cg" style="font-size:18px;font-weight:800">Net: ${sym}${net.toFixed(2)}</div></div>
+  `);
+}
+
+function genBookInv(id){
+  const b=D.bookings.find(x=>x.id===id);if(!b)return;
+  const s=SYM[b.cur]||'$';
+  openMoreSheet('Booking Invoice',`
+    <div style="text-align:center;padding:14px;background:var(--gold3);border-radius:var(--r);margin-bottom:14px">
+      <div class="cg" style="font-size:17px;font-weight:800">👑 ${D.cfg.companyName||'Royal Sharm'}</div>
+      <div class="cm" style="font-size:11.5px">${new Date().toLocaleDateString()}</div>
+    </div>
+    ${[['Trip',b.trip||'—'],['Date',fd(b.date)],['Day',dayName(b.date)],['Hotel',`${b.hotel||'—'}${b.room?' · Room '+b.room:''}`],['Pick Up',b.pickup||'—'],['Pax',`${b.adults||'0'} Adults${b.ch&&b.ch!='0'?' / '+b.ch+' Ch':''}`],['Nationality',b.nat||'—'],['Supplier',b.sup||'—'],['Sales',b.sales||'—']].map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b1);font-size:13px"><span class="cm">${k}</span><span style="font-weight:500;text-align:right;max-width:60%">${v}</span></div>`).join('')}
+    <div style="margin-top:12px;border-top:2px solid var(--gold);padding-top:12px">
+      <div style="display:flex;justify-content:space-between;padding:7px 0;font-size:14px"><span class="cm">Total Price</span><span style="font-weight:700">${s}${b.price||'0'}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;font-size:14px"><span class="cm">Deposit Paid</span><span class="cgr" style="font-weight:700">${s}${b.dep||'0'}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;font-size:14px"><span class="cm">Rest Due</span><span class="${+b.rest>0?'co':'cgr'}" style="font-weight:700">${s}${b.rest||'0'}</span></div>
+    </div>
+    <div style="background:var(--gold3);border-radius:var(--rs);padding:13px;text-align:center;margin-top:10px">
+      <div class="cm" style="font-size:11px">Net Profit</div>
+      <div class="${+b.profit>=0?'cgr':'cr'}" style="font-size:22px;font-weight:800">${s}${b.profit||'0'}</div>
+    </div>
+  `);
+}
+
+// ============================================================
+// MORE MENU & BOTTOM SHEET
+// ============================================================
+function openMore(){
+  document.getElementById('bs-more-body').innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <button class="btn bbl bfw" onclick="closeBs('bs-more');openInstall()">📱 Install as Mobile App</button>
+      <button class="btn bgr bfw" onclick="closeBs('bs-more');exportCSV()">📊 Export CSV (Google Sheets)</button>
+      <button class="btn bg2 bfw" onclick="closeBs('bs-more');exportJSON()">💾 Export JSON Backup</button>
+      <button class="btn bbl bfw" onclick="closeBs('bs-more');genButterflyInv()">🦋 Butterfly Invoice</button>
+      <button class="btn bpu bfw" onclick="closeBs('bs-more');genMSaadInv()">📄 M.Saad Invoice</button>
+    </div>
+  `;
+  document.getElementById('bs-more').classList.add('show');
+}
+
+function openMoreSheet(title,bodyHTML){
+  document.getElementById('bs-more-body').innerHTML=`<div style="font-weight:700;font-size:15px;margin-bottom:14px">${title}</div>${bodyHTML}`;
+  document.getElementById('bs-more').classList.add('show');
+}
+
+// ============================================================
+// INSTALL
+// ============================================================
+function openInstall(){
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid=/Android/.test(navigator.userAgent);
+  const steps=isIOS?[
+    {ico:'1️⃣',text:'Open this page in <strong>Safari</strong> browser on your iPhone'},
+    {ico:'2️⃣',text:'Tap the <strong>Share button</strong> (square with arrow) at the bottom'},
+    {ico:'3️⃣',text:'Scroll down and tap <strong>"Add to Home Screen"</strong>'},
+    {ico:'4️⃣',text:'Tap <strong>Add</strong> — done! The app appears on your home screen 🎉'},
+  ]:isAndroid?[
+    {ico:'1️⃣',text:'Open this page in <strong>Chrome</strong> browser on your phone'},
+    {ico:'2️⃣',text:'Tap the <strong>3-dot menu</strong> (⋮) at the top right'},
+    {ico:'3️⃣',text:'Tap <strong>"Add to Home screen"</strong>'},
+    {ico:'4️⃣',text:'Tap <strong>Add</strong> — the app is installed! 🎉'},
+  ]:[
+    {ico:'📱',text:'Open this file in your phone\'s <strong>browser</strong> (Safari on iPhone, Chrome on Android)'},
+    {ico:'📤',text:'Use your browser\'s <strong>Share menu</strong>'},
+    {ico:'🏠',text:'Select <strong>"Add to Home Screen"</strong>'},
+    {ico:'✅',text:'The app will appear as a <strong>native app icon</strong> on your home screen!'},
+  ];
+  document.getElementById('install-steps').innerHTML=steps.map(s=>`
+    <div style="display:flex;gap:12px;align-items:flex-start;background:var(--s1);padding:12px;border-radius:var(--rs);border:1px solid var(--b1)">
+      <div style="font-size:20px;flex-shrink:0">${s.ico}</div>
+      <div style="font-size:13.5px;line-height:1.6">${s.text}</div>
+    </div>`).join('');
+  document.getElementById('bs-install').classList.add('show');
+}
+
+// ============================================================
+// PWA SETUP
+// ============================================================
+function setupPWA(){
+  // Generate app icon
+  const canvas=document.createElement('canvas');
+  canvas.width=canvas.height=192;
+  const ctx=canvas.getContext('2d');
+  const r=192*0.22;
+  ctx.fillStyle='#081526';
+  ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(192-r,0);ctx.arcTo(192,0,192,r,r);
+  ctx.lineTo(192,192-r);ctx.arcTo(192,192,192-r,192,r);ctx.lineTo(r,192);
+  ctx.arcTo(0,192,0,192-r,r);ctx.lineTo(0,r);ctx.arcTo(0,0,r,0,r);ctx.closePath();ctx.fill();
+  ctx.font='100px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('👑',96,96);
+  const iconData=canvas.toDataURL('image/png');
+
+  // Set apple touch icon
+  const ati=document.getElementById('ati');if(ati)ati.href=iconData;
+
+  // Set manifest
+  const manifest={name:D.cfg.companyName||'Royal Sharm Travel',short_name:'Royal Sharm',description:'Travel Management System',start_url:'.',display:'standalone',background_color:'#081526',theme_color:'#D4AF37',orientation:'portrait',icons:[{src:iconData,sizes:'192x192',type:'image/png'},{src:iconData,sizes:'512x512',type:'image/png'}]};
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  const mfst=document.getElementById('mfst');if(mfst)mfst.href=URL.createObjectURL(blob);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded',()=>{
+  load();
+  setupPWA();
+  setTimeout(()=>{
+    document.getElementById('loading').style.display='none';
+    document.getElementById('app').classList.remove('hidden');
+    updateMnav();
+    rDash();
+  },800);
+});
+</script>
+</body>
+</html>
