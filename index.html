@@ -361,7 +361,8 @@ const SYM  = {USD:'$',EUR:'€',GBP:'£',EGP:'E£'};
 const DAYS  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MON   = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-let D = {bookings:[], treasury:[], cfg:{companyName:'Royal Sharm Travel',minBalance:10000,currency:'USD',salesTeam:'',showInstall:true}};
+let D = {bookings:[], treasury:[], cfg:{companyName:'Royal Sharm Travel',minBalance:10000,currency:'USD',salesTeam:'',showInstall:true,scriptURL:'',autoSync:true,lastSync:''}};
+let syncBusy = false;
 let curMo_  = curMonthStr();
 let curTab  = 'dash';
 let bFilter = 'all';
@@ -741,12 +742,14 @@ function saveBForm(id){
   if(!id){D.bookings.unshift(b);notif('✅ Booking added!');}
   else{const i=D.bookings.findIndex(x=>x.id===id);if(i!==-1)D.bookings[i]=b;notif('✅ Updated!');}
   save();closeM('m-book');rBook();
+  if(D.cfg.autoSync&&D.cfg.scriptURL)pushOneToSheet(b);
 }
 
 function delBook(id){
   if(!confirm('Delete this booking?'))return;
   D.bookings=D.bookings.filter(b=>b.id!==id);
   save();notif('Deleted','w');rBook();
+  if(D.cfg.autoSync&&D.cfg.scriptURL)deleteOneFromSheet(id);
 }
 
 // WhatsApp
@@ -1063,6 +1066,24 @@ function rSet(){
       </div>
     </div>
 
+    <div class="card" style="border-color:var(--b2)">
+      <div class="stl" style="margin-bottom:10px">🔗 Google Sheets Sync</div>
+      <div class="fg"><label class="fl">Apps Script URL</label><input type="text" class="fi" id="s-url" value="${c.scriptURL||''}" oninput="saveCfg()" placeholder="https://script.google.com/macros/s/..."></div>
+      <div class="setting-row">
+        <div>
+          <div class="sr-lbl">Auto-Sync</div>
+          <div class="sr-sub">Sync each booking automatically</div>
+        </div>
+        <button class="toggle ${c.autoSync?'on':''}" onclick="D.cfg.autoSync=!D.cfg.autoSync;save();rSet()"></button>
+      </div>
+      ${c.lastSync?`<div class="cm" style="font-size:11px;margin-top:6px">Last sync: ${c.lastSync}</div>`:''}
+      <div style="display:flex;flex-direction:column;gap:7px;margin-top:11px">
+        <button class="btn bg2 bfw" onclick="testSync()">🔍 Test Connection</button>
+        <button class="btn bbl bfw" onclick="pushAllToSheet()">⬆️ Push All to Sheet (${D.bookings.length})</button>
+        <button class="btn bgr bfw" onclick="pullFromSheet()">⬇️ Pull from Sheet</button>
+      </div>
+    </div>
+
     <div class="card">
       <div class="stl" style="margin-bottom:10px">💾 Data</div>
       <div style="display:flex;flex-direction:column;gap:8px">
@@ -1088,7 +1109,7 @@ function rSet(){
     </div>
 
     <div style="text-align:center;padding:20px 0;color:var(--faint);font-size:11px">
-      Royal Sharm Travel Management System<br>v2.0 · Built for Amr Yakout
+      Royal Sharm Travel Management System<br>v3.0 · Built for Amr Yakout
     </div>
   `;
 }
@@ -1097,6 +1118,8 @@ function saveCfg(){
   D.cfg.companyName=gv('s-name');
   D.cfg.currency=document.getElementById('s-cur')?.value||'USD';
   D.cfg.minBalance=+(gv('s-minbal'))||10000;
+  const u=document.getElementById('s-url');
+  if(u)D.cfg.scriptURL=u.value.trim();
   save();
   document.getElementById('hdr-brand').textContent=D.cfg.companyName.toUpperCase().slice(0,14)||'ROYAL SHARM';
 }
@@ -1238,6 +1261,98 @@ function openInstall(){
       <div style="font-size:13.5px;line-height:1.6">${s.text}</div>
     </div>`).join('');
   document.getElementById('bs-install').classList.add('show');
+}
+
+// ============================================================
+// GOOGLE SHEETS SYNC
+// ============================================================
+function syncTime(){
+  const d=new Date();
+  D.cfg.lastSync=d.toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  save();
+}
+
+async function testSync(){
+  if(!D.cfg.scriptURL){notif('Add your Apps Script URL first','e');return;}
+  notif('🔍 Testing connection...');
+  try{
+    const r=await fetch(D.cfg.scriptURL,{
+      method:'POST',
+      body:JSON.stringify({action:'ping'}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      redirect:'follow'
+    });
+    const j=await r.json();
+    if(j.ok)notif('✅ Connected to Google Sheets!');
+    else notif('❌ Error: '+(j.error||'Unknown'),'e');
+  }catch(err){notif('❌ Connection failed. Check URL.','e');console.error(err);}
+}
+
+async function pushOneToSheet(b){
+  if(!D.cfg.scriptURL||syncBusy)return;
+  try{
+    await fetch(D.cfg.scriptURL,{
+      method:'POST',
+      body:JSON.stringify({action:'push_one',booking:b}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      redirect:'follow'
+    });
+    syncTime();
+  }catch(err){console.error('Sync failed:',err);}
+}
+
+async function deleteOneFromSheet(id){
+  if(!D.cfg.scriptURL||syncBusy)return;
+  try{
+    await fetch(D.cfg.scriptURL,{
+      method:'POST',
+      body:JSON.stringify({action:'delete_one',id:id}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      redirect:'follow'
+    });
+    syncTime();
+  }catch(err){console.error('Sync delete failed:',err);}
+}
+
+async function pushAllToSheet(){
+  if(!D.cfg.scriptURL){notif('Add your Apps Script URL first','e');return;}
+  if(D.bookings.length===0){notif('No bookings to push','w');return;}
+  if(!confirm(`Push all ${D.bookings.length} bookings to Google Sheet? This will replace sheet contents.`))return;
+  syncBusy=true;
+  notif(`⬆️ Pushing ${D.bookings.length} bookings...`);
+  try{
+    const r=await fetch(D.cfg.scriptURL,{
+      method:'POST',
+      body:JSON.stringify({action:'push_all',bookings:D.bookings}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      redirect:'follow'
+    });
+    const j=await r.json();
+    if(j.ok){notif(`✅ Pushed ${j.count} bookings to Sheet!`);syncTime();rSet();}
+    else notif('❌ Error: '+(j.error||'Unknown'),'e');
+  }catch(err){notif('❌ Push failed','e');console.error(err);}
+  syncBusy=false;
+}
+
+async function pullFromSheet(){
+  if(!D.cfg.scriptURL){notif('Add your Apps Script URL first','e');return;}
+  if(!confirm('Pull bookings FROM the Sheet? This will replace your current bookings on this device.'))return;
+  syncBusy=true;
+  notif('⬇️ Pulling from Sheet...');
+  try{
+    const r=await fetch(D.cfg.scriptURL,{
+      method:'POST',
+      body:JSON.stringify({action:'pull'}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      redirect:'follow'
+    });
+    const j=await r.json();
+    if(j.ok&&Array.isArray(j.bookings)){
+      D.bookings=j.bookings;save();
+      notif(`✅ Pulled ${j.bookings.length} bookings`);syncTime();rSet();
+    }else notif('❌ Error: '+(j.error||'Unknown'),'e');
+  }catch(err){notif('❌ Pull failed','e');console.error(err);}
+  syncBusy=false;
 }
 
 // ============================================================
