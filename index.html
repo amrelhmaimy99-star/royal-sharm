@@ -1081,6 +1081,7 @@ function rSet(){
         <button class="btn bg2 bfw" onclick="testSync()">🔍 Test Connection</button>
         <button class="btn bbl bfw" onclick="pushAllToSheet()">⬆️ Push All to Sheet (${D.bookings.length})</button>
         <button class="btn bgr bfw" onclick="pullFromSheet()">⬇️ Pull from Sheet</button>
+        <button class="btn bor bfw" onclick="importLegacy()">📥 Import Old Bookings (legacy)</button>
       </div>
     </div>
 
@@ -1352,6 +1353,30 @@ async function pullFromSheet(){
       notif(`✅ Pulled ${j.bookings.length} bookings`);syncTime();rSet();
     }else notif('❌ Error: '+(j.error||'Unknown'),'e');
   }catch(err){notif('❌ Pull failed','e');console.error(err);}
+  syncBusy=false;
+}
+
+async function importLegacy(){
+  if(!D.cfg.scriptURL){notif('Add your Apps Script URL first','e');return;}
+  if(!confirm('Import old bookings from your monthly tabs (04/2026, 05/2026 etc)?\n\nThis adds them to the App without removing your current data.'))return;
+  syncBusy=true;
+  notif('📥 Reading legacy data... (may take a minute)');
+  try{
+    const r=await fetch(D.cfg.scriptURL,{
+      method:'POST',
+      body:JSON.stringify({action:'import_legacy'}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      redirect:'follow'
+    });
+    const j=await r.json();
+    if(j.ok&&Array.isArray(j.bookings)){
+      const existingIds=new Set(D.bookings.map(b=>b.id));
+      const newOnes=j.bookings.filter(b=>!existingIds.has(b.id));
+      D.bookings=[...newOnes,...D.bookings];
+      save();syncTime();rSet();
+      notif(`✅ Imported ${newOnes.length} bookings from ${j.tabCount} tab(s)!`);
+    }else notif('❌ Error: '+(j.error||'Unknown'),'e');
+  }catch(err){notif('❌ Import failed','e');console.error(err);}
   syncBusy=false;
 }
 
